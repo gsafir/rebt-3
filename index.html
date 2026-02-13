@@ -490,8 +490,8 @@
       try {
         const response = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-body: new URLSearchParams({ payload: JSON.stringify(payload) }).toString(),
+           headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           signal: controller.signal
         });
 
