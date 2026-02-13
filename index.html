@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CalmWise - REBT сессии онлайн</title>
+  <meta name="description" content="CalmWise помогает пройти структурированную REBT-сессию и снизить тревогу, стресс и перегруз." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="landing-body">
+  <header class="site-header glass-panel">
+    <div class="container header-inner">
+      <a class="logo" href="#hero">CalmWise</a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="#how">Как работает</a>
+        <a href="#rebt">REBT</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <a class="btn btn-primary" href="app.html">Начать сессию</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="hero section fade-up">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">CalmWise online REBT</p>
+          <h1>Когда внутри шумно, можно начать с одного ясного шага.</h1>
+          <p class="subtitle">
+            Тревога, стресс и перегруз не обязаны управлять вашим днём. CalmWise мягко и рационально проводит через структурированный диалог.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="app.html">Начать онлайн-сессию</a>
+            <a class="btn btn-ghost" href="#contacts">Контакты</a>
+          </div>
+        </div>
+        <div class="hero-card glass-panel">
+          <p class="hero-card-title">Состояние перед сессией</p>
+          <ul>
+            <li>Тревога и внутреннее напряжение</li>
+            <li>Навязчивые мысли и чувство вины</li>
+            <li>Усталость от эмоциональной перегрузки</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section fade-up">
+      <div class="container">
+        <h2>Как работает</h2>
+        <div class="cards-grid">
+          <article class="card glass-panel">
+            <p class="step">Шаг 1</p>
+            <h3>Начать диалог</h3>
+            <p>Коротко описываете ситуацию и ключевую мысль.</p>
+          </article>
+          <article class="card glass-panel">
+            <p class="step">Шаг 2</p>
+            <h3>Пройти REBT-сессию</h3>
+            <p>Ассистент проводит через чёткую структуру вопросов.</p>
+          </article>
+          <article class="card glass-panel">
+            <p class="step">Шаг 3</p>
+            <h3>Получить вывод</h3>
+            <p>Формируются эффективные убеждения и практический фокус.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="rebt" class="section fade-up">
+      <div class="container">
+        <h2>REBT</h2>
+        <ul class="rebt-list glass-panel">
+          <li>Фиксируем событие, мысль и эмоции.</li>
+          <li>Выявляем должностование и жёсткие требования.</li>
+          <li>Проверяем мысль логикой и фактами.</li>
+          <li>Снижаем катастрофизацию и самоуничижение.</li>
+          <li>Развиваем устойчивое эффективное убеждение.</li>
+          <li>Закрепляем 1-2 конкретных действия.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="contacts" class="section fade-up">
+      <div class="container contacts-grid">
+        <div class="glass-panel contact-card">
+          <h2>Контакты</h2>
+          <ul class="contact-list">
+            <li>Telegram: <a href="#">EDIT HERE</a></li>
+            <li>Email: <a href="mailto:EDIT HERE">EDIT HERE</a></li>
+            <li>Телефон: <a href="tel:EDIT HERE">EDIT HERE</a></li>
+          </ul>
+        </div>
+
+        <form id="lead-form" class="glass-panel lead-form" novalidate>
+          <h3>Оставить заявку</h3>
+          <label for="lead-name">Имя</label>
+          <input id="lead-name" name="name" type="text" autocomplete="name" required />
+
+          <label for="lead-phone">Телефон</label>
+          <input id="lead-phone" name="phone" type="tel" autocomplete="tel" required />
+
+          <button class="btn btn-primary" type="submit">Отправить</button>
+          <p id="lead-status" class="form-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="landing.js"></script>
+</body>
+</html>
