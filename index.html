@@ -1,113 +1,676 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CalmWise - REBT сессии онлайн</title>
-  <meta name="description" content="CalmWise помогает пройти структурированную REBT-сессию и снизить тревогу, стресс и перегруз." />
-  <link rel="stylesheet" href="styles.css" />
+  <title>WiseCalm MVP</title>
+  <style>
+    :root {
+      --bg: #f6f9fc;
+      --card: rgba(255, 255, 255, 0.72);
+      --text: #152033;
+      --muted: #5f6e85;
+      --primary: #4f7cff;
+      --primary-soft: rgba(79, 124, 255, 0.14);
+      --border: rgba(64, 102, 191, 0.24);
+      --glow: rgba(79, 124, 255, 0.16);
+      --ok: #167a48;
+      --error: #b4232c;
+      --shadow: 0 18px 44px -28px rgba(20, 39, 77, 0.4);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(79, 124, 255, 0.14), transparent 42%),
+        radial-gradient(circle at top right, rgba(120, 153, 245, 0.1), transparent 30%),
+        var(--bg);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 860px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .header,
+    .footer,
+    .chat-card {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      font-size: 1.05rem;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.92rem;
+      border-radius: 12px;
+      padding: 10px 14px;
+      transition: transform 120ms ease, box-shadow 140ms ease, opacity 120ms ease;
+      box-shadow: 0 10px 24px -16px rgba(39, 81, 201, 0.66);
+      text-decoration: none;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: var(--text);
+      border-color: rgba(82, 102, 144, 0.3);
+      box-shadow: none;
+    }
+
+    .chat-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      border-color: rgba(79, 124, 255, 0.4);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.54),
+        0 0 0 1px rgba(79, 124, 255, 0.18),
+        0 24px 40px -30px rgba(18, 58, 166, 0.45),
+        0 0 45px -28px var(--glow);
+    }
+
+    .chat-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(130deg, rgba(79, 124, 255, 0.08), transparent 36%, rgba(79, 124, 255, 0.07));
+    }
+
+    .messages {
+      border: 1px solid rgba(87, 112, 163, 0.2);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
+      height: clamp(260px, 45vh, 420px);
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      max-width: 92%;
+      border-radius: 12px;
+      padding: 9px 11px;
+      line-height: 1.36;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      border: 1px solid transparent;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: rgba(79, 124, 255, 0.11);
+      border-color: rgba(79, 124, 255, 0.23);
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+      background: #fff;
+      border-color: rgba(111, 126, 163, 0.2);
+    }
+
+    .typing {
+      display: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: -4px;
+      padding-left: 3px;
+    }
+
+    .typing.active {
+      display: block;
+    }
+
+    .error-box {
+      display: none;
+      border: 1px solid rgba(180, 35, 44, 0.26);
+      color: #7e1620;
+      background: rgba(255, 235, 237, 0.8);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 0.9rem;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .error-box.active {
+      display: flex;
+    }
+
+    .limit-note {
+      color: var(--error);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .limit-note.active {
+      display: block;
+    }
+
+    .composer {
+      display: grid;
+      gap: 8px;
+    }
+
+    textarea,
+    input[type="email"] {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(76, 100, 148, 0.3);
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.94);
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      max-height: 220px;
+    }
+
+    textarea:focus,
+    input[type="email"]:focus {
+      border-color: rgba(79, 124, 255, 0.58);
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.16);
+    }
+
+    .controls,
+    .pdf-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .controls .btn,
+    .pdf-row .btn {
+      min-width: 104px;
+    }
+
+    .status {
+      min-height: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .status.success {
+      color: var(--ok);
+    }
+
+    .status.error {
+      color: var(--error);
+    }
+
+    .footer {
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    @media (min-width: 720px) {
+      .header,
+      .chat-card,
+      .footer {
+        padding: 16px;
+      }
+
+      .controls {
+        justify-content: flex-start;
+      }
+    }
+  </style>
 </head>
-<body class="landing-body">
-  <header class="site-header glass-panel">
-    <div class="container header-inner">
-      <a class="logo" href="#hero">CalmWise</a>
-      <nav class="main-nav" aria-label="Основная навигация">
-        <a href="#how">Как работает</a>
-        <a href="#rebt">REBT</a>
-        <a href="#contacts">Контакты</a>
-      </nav>
-      <a class="btn btn-primary" href="app.html">Начать сессию</a>
-    </div>
-  </header>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="g" x1="4" y1="6" x2="56" y2="54" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#5E88FF" />
+              <stop offset="1" stop-color="#7FAAFF" />
+            </linearGradient>
+          </defs>
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <path d="M20 35c5-7 11-7 16 0s11 7 16 0" stroke="white" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="24" cy="24" r="3" fill="white" fill-opacity="0.95"/>
+        </svg>
+        <span>WiseCalm</span>
+      </div>
+      <a id="bookButton" class="btn" href="#" target="_blank" rel="noopener noreferrer">Book a session</a>
+    </header>
 
-  <main>
-    <section id="hero" class="hero section fade-up">
-      <div class="container hero-grid">
-        <div>
-          <p class="eyebrow">CalmWise online REBT</p>
-          <h1>Когда внутри шумно, можно начать с одного ясного шага.</h1>
-          <p class="subtitle">
-            Тревога, стресс и перегруз не обязаны управлять вашим днём. CalmWise мягко и рационально проводит через структурированный диалог.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="app.html">Начать онлайн-сессию</a>
-            <a class="btn btn-ghost" href="#contacts">Контакты</a>
-          </div>
+    <section class="chat-card" aria-label="WiseCalm chat">
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <div id="typing" class="typing" aria-live="polite">typing…</div>
+      <div id="chatError" class="error-box" role="alert">
+        <span id="chatErrorText"></span>
+        <button id="retryButton" type="button" class="btn secondary">Retry</button>
+      </div>
+      <p id="limitNote" class="limit-note">Limit reached. Enter email for PDF.</p>
+
+      <div class="composer">
+        <textarea id="chatInput" placeholder="Type your message…"></textarea>
+        <div class="controls">
+          <button id="sendButton" type="button" class="btn">Send</button>
+          <button id="clearButton" type="button" class="btn secondary">Clear</button>
         </div>
-        <div class="hero-card glass-panel">
-          <p class="hero-card-title">Состояние перед сессией</p>
-          <ul>
-            <li>Тревога и внутреннее напряжение</li>
-            <li>Навязчивые мысли и чувство вины</li>
-            <li>Усталость от эмоциональной перегрузки</li>
-          </ul>
+      </div>
+
+      <div>
+        <div class="pdf-row">
+          <input id="emailInput" type="email" placeholder="Enter email" autocomplete="email" />
+          <button id="pdfButton" type="button" class="btn">Send my PDF</button>
         </div>
+        <div id="status" class="status" aria-live="polite"></div>
       </div>
     </section>
 
-    <section id="how" class="section fade-up">
-      <div class="container">
-        <h2>Как работает</h2>
-        <div class="cards-grid">
-          <article class="card glass-panel">
-            <p class="step">Шаг 1</p>
-            <h3>Начать диалог</h3>
-            <p>Коротко описываете ситуацию и ключевую мысль.</p>
-          </article>
-          <article class="card glass-panel">
-            <p class="step">Шаг 2</p>
-            <h3>Пройти REBT-сессию</h3>
-            <p>Ассистент проводит через чёткую структуру вопросов.</p>
-          </article>
-          <article class="card glass-panel">
-            <p class="step">Шаг 3</p>
-            <h3>Получить вывод</h3>
-            <p>Формируются эффективные убеждения и практический фокус.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="rebt" class="section fade-up">
-      <div class="container">
-        <h2>REBT</h2>
-        <ul class="rebt-list glass-panel">
-          <li>Фиксируем событие, мысль и эмоции.</li>
-          <li>Выявляем должностование и жёсткие требования.</li>
-          <li>Проверяем мысль логикой и фактами.</li>
-          <li>Снижаем катастрофизацию и самоуничижение.</li>
-          <li>Развиваем устойчивое эффективное убеждение.</li>
-          <li>Закрепляем 1-2 конкретных действия.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="contacts" class="section fade-up">
-      <div class="container contacts-grid">
-        <div class="glass-panel contact-card">
-          <h2>Контакты</h2>
-          <ul class="contact-list">
-            <li>Telegram: <a href="#">EDIT HERE</a></li>
-            <li>Email: <a href="mailto:EDIT HERE">EDIT HERE</a></li>
-            <li>Телефон: <a href="tel:EDIT HERE">EDIT HERE</a></li>
-          </ul>
-        </div>
-
-        <form id="lead-form" class="glass-panel lead-form" novalidate>
-          <h3>Оставить заявку</h3>
-          <label for="lead-name">Имя</label>
-          <input id="lead-name" name="name" type="text" autocomplete="name" required />
-
-          <label for="lead-phone">Телефон</label>
-          <input id="lead-phone" name="phone" type="tel" autocomplete="tel" required />
-
-          <button class="btn btn-primary" type="submit">Отправить</button>
-          <p id="lead-status" class="form-status" aria-live="polite"></p>
-        </form>
-      </div>
-    </section>
+    <footer class="footer">
+      Phone: +XXX XXX XXX<br />
+      Email: your@email.com
+    </footer>
   </main>
 
-  <script src="landing.js"></script>
+  <script>
+    const CONFIG = {
+      CHAT_WEBHOOK_URL: "PASTE_N8N_CHAT_WEBHOOK_URL_HERE",
+      PDF_WEBHOOK_URL: "PASTE_N8N_PDF_WEBHOOK_URL_HERE",
+      BOOKING_URL: "PASTE_BOOKING_URL_HERE",
+      MAX_USER_MESSAGES: 40
+    };
+
+    const STORAGE_KEYS = {
+      sessionId: "wisecalm_sessionId",
+      messages: "wisecalm_messages",
+      userCount: "wisecalm_userCount"
+    };
+
+    const state = {
+      sessionId: "",
+      messages: [],
+      userCount: 0,
+      sending: false,
+      waitingForReply: false,
+      lastRequest: null
+    };
+
+    const els = {
+      bookButton: document.getElementById("bookButton"),
+      messages: document.getElementById("messages"),
+      typing: document.getElementById("typing"),
+      chatError: document.getElementById("chatError"),
+      chatErrorText: document.getElementById("chatErrorText"),
+      retryButton: document.getElementById("retryButton"),
+      limitNote: document.getElementById("limitNote"),
+      chatInput: document.getElementById("chatInput"),
+      sendButton: document.getElementById("sendButton"),
+      clearButton: document.getElementById("clearButton"),
+      emailInput: document.getElementById("emailInput"),
+      pdfButton: document.getElementById("pdfButton"),
+      status: document.getElementById("status")
+    };
+
+    function createSessionId() {
+      if (window.crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return "sess-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEYS.sessionId, state.sessionId);
+      localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(state.messages));
+      localStorage.setItem(STORAGE_KEYS.userCount, String(state.userCount));
+    }
+
+    function loadState() {
+      state.sessionId = localStorage.getItem(STORAGE_KEYS.sessionId) || createSessionId();
+      const storedMessages = localStorage.getItem(STORAGE_KEYS.messages);
+      const parsedCount = Number(localStorage.getItem(STORAGE_KEYS.userCount));
+
+      if (storedMessages) {
+        try {
+          const parsed = JSON.parse(storedMessages);
+          if (Array.isArray(parsed)) {
+            state.messages = parsed.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
+          }
+        } catch (_) {
+          state.messages = [];
+        }
+      }
+
+      if (Number.isFinite(parsedCount) && parsedCount >= 0) {
+        state.userCount = parsedCount;
+      } else {
+        state.userCount = state.messages.filter((m) => m.role === "user").length;
+      }
+
+      saveState();
+    }
+
+    function appendMessage(role, content, ts) {
+      state.messages.push({ role, content, ts: ts || nowIso() });
+      saveState();
+      renderMessages();
+    }
+
+    function renderMessages() {
+      els.messages.innerHTML = "";
+      if (!state.messages.length) {
+        const initial = document.createElement("div");
+        initial.className = "message assistant";
+        initial.textContent = "Hello. I’m here to listen. What would you like to share today?";
+        els.messages.appendChild(initial);
+      }
+
+      state.messages.forEach((msg) => {
+        const item = document.createElement("div");
+        item.className = "message " + msg.role;
+        item.textContent = msg.content;
+        els.messages.appendChild(item);
+      });
+
+      autoScroll();
+    }
+
+    function autoScroll() {
+      requestAnimationFrame(() => {
+        els.messages.scrollTop = els.messages.scrollHeight;
+      });
+    }
+
+    function showTyping(show) {
+      els.typing.classList.toggle("active", show);
+      if (show) autoScroll();
+    }
+
+    function setChatError(message) {
+      if (!message) {
+        els.chatError.classList.remove("active");
+        els.chatErrorText.textContent = "";
+        return;
+      }
+      els.chatErrorText.textContent = message;
+      els.chatError.classList.add("active");
+    }
+
+    function setStatus(message, type) {
+      els.status.textContent = message || "";
+      els.status.className = "status" + (type ? " " + type : "");
+    }
+
+    function setLimitState() {
+      const reached = state.userCount >= CONFIG.MAX_USER_MESSAGES;
+      els.chatInput.disabled = reached;
+      els.sendButton.disabled = reached || state.sending;
+      els.limitNote.classList.toggle("active", reached);
+      if (reached) {
+        els.chatInput.placeholder = "Message limit reached";
+      } else {
+        els.chatInput.placeholder = "Type your message…";
+      }
+    }
+
+    async function fetchWithTimeout(url, payload) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 20000);
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+        return await response.json();
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error("Request timeout (20s)");
+        }
+        if (error instanceof TypeError) {
+          throw new Error("Network/CORS error");
+        }
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function sendChatMessage(text, retryPayload) {
+      if (!CONFIG.CHAT_WEBHOOK_URL || CONFIG.CHAT_WEBHOOK_URL.includes("PASTE_")) {
+        throw new Error("Chat webhook URL is not configured");
+      }
+
+      const payload = retryPayload || {
+        sessionId: state.sessionId,
+        timestamp: nowIso(),
+        source: "wisecalm-web",
+        version: "mvp-1",
+        message: text
+      };
+
+      state.lastRequest = { type: "chat", payload, text };
+      state.sending = true;
+      els.sendButton.disabled = true;
+      showTyping(true);
+      setChatError("");
+
+      try {
+        const data = await fetchWithTimeout(CONFIG.CHAT_WEBHOOK_URL, payload);
+        const reply = data && typeof data.reply === "string" ? data.reply : "I received your message.";
+        appendMessage("assistant", reply);
+        setStatus("", "");
+      } finally {
+        state.sending = false;
+        showTyping(false);
+        setLimitState();
+      }
+    }
+
+    async function onSend() {
+      if (state.sending || state.userCount >= CONFIG.MAX_USER_MESSAGES) return;
+      const text = els.chatInput.value.trim();
+      if (!text) return;
+
+      appendMessage("user", text);
+      state.userCount += 1;
+      saveState();
+      setLimitState();
+      els.chatInput.value = "";
+
+      try {
+        await sendChatMessage(text);
+      } catch (error) {
+        setChatError("Could not send message: " + error.message);
+        setStatus("", "");
+      }
+    }
+
+    async function onRetry() {
+      if (!state.lastRequest || state.sending) return;
+      setChatError("");
+
+      if (state.lastRequest.type === "chat") {
+        showTyping(true);
+        try {
+          await sendChatMessage(state.lastRequest.text, state.lastRequest.payload);
+        } catch (error) {
+          setChatError("Retry failed: " + error.message);
+        }
+      }
+
+      if (state.lastRequest.type === "pdf") {
+        try {
+          await sendPdf(state.lastRequest.payload);
+        } catch (error) {
+          setStatus("Retry failed: " + error.message, "error");
+        }
+      }
+    }
+
+    async function sendPdf(retryPayload) {
+      if (!CONFIG.PDF_WEBHOOK_URL || CONFIG.PDF_WEBHOOK_URL.includes("PASTE_")) {
+        throw new Error("PDF webhook URL is not configured");
+      }
+
+      const email = els.emailInput.value.trim();
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!retryPayload && !emailPattern.test(email)) {
+        throw new Error("Please enter a valid email");
+      }
+
+      const payload = retryPayload || {
+        sessionId: state.sessionId,
+        timestamp: nowIso(),
+        source: "wisecalm-web",
+        version: "mvp-1",
+        email,
+        consent: true
+      };
+
+      state.lastRequest = { type: "pdf", payload };
+      els.pdfButton.disabled = true;
+      setStatus("Sending PDF request…", "");
+
+      try {
+        const data = await fetchWithTimeout(CONFIG.PDF_WEBHOOK_URL, payload);
+        if (data && data.ok === true) {
+          setStatus("Done. Please check your email.", "success");
+        } else {
+          throw new Error("Unexpected response");
+        }
+      } finally {
+        els.pdfButton.disabled = false;
+      }
+    }
+
+    function clearChat() {
+      localStorage.removeItem(STORAGE_KEYS.sessionId);
+      localStorage.removeItem(STORAGE_KEYS.messages);
+      localStorage.removeItem(STORAGE_KEYS.userCount);
+      state.sessionId = createSessionId();
+      state.messages = [];
+      state.userCount = 0;
+      state.lastRequest = null;
+      setChatError("");
+      setStatus("Chat cleared.", "");
+      renderMessages();
+      setLimitState();
+      saveState();
+    }
+
+    function setupEvents() {
+      els.bookButton.href = CONFIG.BOOKING_URL && !CONFIG.BOOKING_URL.includes("PASTE_") ? CONFIG.BOOKING_URL : "#";
+      els.bookButton.addEventListener("click", (event) => {
+        if (els.bookButton.getAttribute("href") === "#") {
+          event.preventDefault();
+          setStatus("Please set BOOKING_URL in CONFIG.", "error");
+        }
+      });
+
+      els.sendButton.addEventListener("click", onSend);
+      els.clearButton.addEventListener("click", clearChat);
+      els.retryButton.addEventListener("click", onRetry);
+      els.pdfButton.addEventListener("click", async () => {
+        try {
+          await sendPdf();
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      });
+
+      els.chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          onSend();
+        }
+      });
+    }
+
+    function init() {
+      loadState();
+      renderMessages();
+      setLimitState();
+      setupEvents();
+    }
+
+    init();
+  </script>
 </body>
 </html>
