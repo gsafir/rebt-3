@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+  <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WiseCalm MVP</title>
+  <title>WiseCalm — MVP</title>
   <style>
     :root {
       --bg: #f6f9fc;
@@ -305,37 +305,37 @@
         </svg>
         <span>WiseCalm</span>
       </div>
-      <a id="bookButton" class="btn" href="#" target="_blank" rel="noopener noreferrer">Book a session</a>
+      <a id="bookButton" class="btn" href="#" target="_blank" rel="noopener noreferrer">Записаться на сессию</a>
     </header>
 
-    <section class="chat-card" aria-label="WiseCalm chat">
+    <section class="chat-card" aria-label="Чат WiseCalm">
       <div id="messages" class="messages" aria-live="polite"></div>
-      <div id="typing" class="typing" aria-live="polite">typing…</div>
+      <div id="typing" class="typing" aria-live="polite">печатает…</div>
       <div id="chatError" class="error-box" role="alert">
         <span id="chatErrorText"></span>
-        <button id="retryButton" type="button" class="btn secondary">Retry</button>
+        <button id="retryButton" type="button" class="btn secondary">Повторить</button>
       </div>
-      <p id="limitNote" class="limit-note">Limit reached. Enter email for PDF.</p>
+      <p id="limitNote" class="limit-note">Лимит достигнут. Введите email для PDF.</p>
 
       <div class="composer">
-        <textarea id="chatInput" placeholder="Type your message…"></textarea>
+        <textarea id="chatInput" placeholder="Введите сообщение…"></textarea>
         <div class="controls">
-          <button id="sendButton" type="button" class="btn">Send</button>
-          <button id="clearButton" type="button" class="btn secondary">Clear</button>
+          <button id="sendButton" type="button" class="btn">Отправить</button>
+          <button id="clearButton" type="button" class="btn secondary">Очистить</button>
         </div>
       </div>
 
       <div>
         <div class="pdf-row">
-          <input id="emailInput" type="email" placeholder="Enter email" autocomplete="email" />
-          <button id="pdfButton" type="button" class="btn">Send my PDF</button>
+          <input id="emailInput" type="email" placeholder="Введите email" autocomplete="email" />
+          <button id="pdfButton" type="button" class="btn">Отправить мой PDF</button>
         </div>
         <div id="status" class="status" aria-live="polite"></div>
       </div>
     </section>
 
     <footer class="footer">
-      Phone: +XXX XXX XXX<br />
+      Телефон: +XXX XXX XXX<br />
       Email: your@email.com
     </footer>
   </main>
@@ -432,7 +432,7 @@
       if (!state.messages.length) {
         const initial = document.createElement("div");
         initial.className = "message assistant";
-        initial.textContent = "Hello. I’m here to listen. What would you like to share today?";
+        initial.textContent = "Здравствуйте. Я рядом, чтобы выслушать. Чем вы хотите поделиться сегодня?";
         els.messages.appendChild(initial);
       }
 
@@ -478,9 +478,9 @@
       els.sendButton.disabled = reached || state.sending;
       els.limitNote.classList.toggle("active", reached);
       if (reached) {
-        els.chatInput.placeholder = "Message limit reached";
+        els.chatInput.placeholder = "Достигнут лимит сообщений";
       } else {
-        els.chatInput.placeholder = "Type your message…";
+        els.chatInput.placeholder = "Введите сообщение…";
       }
     }
 
@@ -501,10 +501,10 @@
         return await response.json();
       } catch (error) {
         if (error.name === "AbortError") {
-          throw new Error("Request timeout (20s)");
+          throw new Error("Превышено время ожидания (20с)");
         }
         if (error instanceof TypeError) {
-          throw new Error("Network/CORS error");
+          throw new Error("Ошибка сети/CORS");
         }
         throw error;
       } finally {
@@ -514,7 +514,7 @@
 
     async function sendChatMessage(text, retryPayload) {
       if (!CONFIG.CHAT_WEBHOOK_URL || CONFIG.CHAT_WEBHOOK_URL.includes("PASTE_")) {
-        throw new Error("Chat webhook URL is not configured");
+        throw new Error("Не настроен URL chat webhook");
       }
 
       const payload = retryPayload || {
@@ -533,7 +533,7 @@
 
       try {
         const data = await fetchWithTimeout(CONFIG.CHAT_WEBHOOK_URL, payload);
-        const reply = data && typeof data.reply === "string" ? data.reply : "I received your message.";
+        const reply = data && typeof data.reply === "string" ? data.reply : "Я получил ваше сообщение.";
         appendMessage("assistant", reply);
         setStatus("", "");
       } finally {
@@ -557,7 +557,7 @@
       try {
         await sendChatMessage(text);
       } catch (error) {
-        setChatError("Could not send message: " + error.message);
+        setChatError("Не удалось отправить сообщение: " + error.message);
         setStatus("", "");
       }
     }
@@ -571,7 +571,7 @@
         try {
           await sendChatMessage(state.lastRequest.text, state.lastRequest.payload);
         } catch (error) {
-          setChatError("Retry failed: " + error.message);
+          setChatError("Повтор не удался: " + error.message);
         }
       }
 
@@ -579,20 +579,20 @@
         try {
           await sendPdf(state.lastRequest.payload);
         } catch (error) {
-          setStatus("Retry failed: " + error.message, "error");
+          setStatus("Повтор не удался: " + error.message, "error");
         }
       }
     }
 
     async function sendPdf(retryPayload) {
       if (!CONFIG.PDF_WEBHOOK_URL || CONFIG.PDF_WEBHOOK_URL.includes("PASTE_")) {
-        throw new Error("PDF webhook URL is not configured");
+        throw new Error("Не настроен URL PDF webhook");
       }
 
       const email = els.emailInput.value.trim();
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!retryPayload && !emailPattern.test(email)) {
-        throw new Error("Please enter a valid email");
+        throw new Error("Введите корректный email");
       }
 
       const payload = retryPayload || {
@@ -606,14 +606,14 @@
 
       state.lastRequest = { type: "pdf", payload };
       els.pdfButton.disabled = true;
-      setStatus("Sending PDF request…", "");
+      setStatus("Отправка запроса на PDF…", "");
 
       try {
         const data = await fetchWithTimeout(CONFIG.PDF_WEBHOOK_URL, payload);
         if (data && data.ok === true) {
-          setStatus("Done. Please check your email.", "success");
+          setStatus("Готово. Проверьте вашу почту.", "success");
         } else {
-          throw new Error("Unexpected response");
+          throw new Error("Неожиданный ответ");
         }
       } finally {
         els.pdfButton.disabled = false;
@@ -629,7 +629,7 @@
       state.userCount = 0;
       state.lastRequest = null;
       setChatError("");
-      setStatus("Chat cleared.", "");
+      setStatus("Чат очищен.", "");
       renderMessages();
       setLimitState();
       saveState();
@@ -640,7 +640,7 @@
       els.bookButton.addEventListener("click", (event) => {
         if (els.bookButton.getAttribute("href") === "#") {
           event.preventDefault();
-          setStatus("Please set BOOKING_URL in CONFIG.", "error");
+          setStatus("Укажите BOOKING_URL в CONFIG.", "error");
         }
       });
 
